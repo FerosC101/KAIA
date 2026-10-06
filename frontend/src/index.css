@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/playfair-display";
+
+/* ---------------------------------------------------------------------------
+   KAIA design tokens
+   Deep Plum · Muted Burgundy · Soft Lavender · Warm Ivory · Muted Green · Charcoal
+   Semantic names only — components never hardcode brand hexes.
+--------------------------------------------------------------------------- */
+@theme {
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Playfair Display Variable", "Playfair Display", ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  /* brand */
+  --color-plum: #4b2848;
+  --color-burgundy: #8a3f4a;
+  --color-lavender: #c9b7d9;
+  --color-ivory: #f8f4ee;
+  --color-green: #8dae9b;
+  --color-charcoal: #1f2937;
+
+  /* surfaces */
+  --color-background: #f8f4ee;
+  --color-surface: #fffdfa;
+  --color-sunken: #f2ece2;
+  --color-muted: #f3eee6;
+  --color-border: #e8e0d4;
+  --color-input: #d8d0c2;
+  --color-ring: #4b2848;
+
+  /* text */
+  --color-foreground: #1f2937;
+  --color-navy: #1f2937;        /* legacy alias: body/heading ink */
+  --color-navy-soft: #374151;
+  --color-muted-foreground: #6b7280;
+  --color-subtle: #9aa2ae;
+
+  /* primary (deep plum) */
+  --color-primary: #4b2848;
+  --color-primary-hover: #3a1d37;
+  --color-primary-foreground: #ffffff;
+  --color-primary-soft: #f1eaf0;
+  --color-primary-ring: #e2d4e0;
+
+  /* secondary (soft lavender) */
+  --color-secondary: #efe9f5;
+  --color-secondary-foreground: #4b2848;
+  --color-lavender-soft: #f4effa;
+
+  /* status — tinted backgrounds + text-safe foregrounds */
+  --color-success: #4e7a64;        /* text/icon weight of muted green */
+  --color-success-soft: #e9f1ec;
+  --color-success-ring: #cfe0d6;
+  --color-warning: #9a6a16;
+  --color-warning-soft: #faf1df;
+  --color-warning-ring: #ecdcbb;
+  --color-priority: #8a3f4a;       /* muted burgundy — attention, never alarm red */
+  --color-priority-soft: #f7ebec;
+  --color-priority-ring: #ead3d5;
+  --color-info: #5a4a6e;           /* in-progress reads lavender */
+  --color-info-soft: #f0ecf6;
+  --color-info-ring: #ded5ea;
+
+  /* geometry */
+  --radius-card: 1rem;       /* 16px cards */
+  --radius-btn: 0.625rem;    /* 10px buttons */
+  --radius-field: 0.75rem;   /* 12px inputs */
+
+  /* elevation — restrained */
+  --shadow-card: 0 1px 2px rgb(31 41 55 / 0.04);
+  --shadow-soft: 0 1px 2px rgb(31 41 55 / 0.04), 0 8px 24px -18px rgb(31 41 55 / 0.18);
+  --shadow-lift: 0 2px 6px rgb(31 41 55 / 0.06), 0 18px 40px -24px rgb(75 40 72 / 0.28);
+
+  --animate-flow: flow 2.4s linear infinite;
+  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-scan: scan 2.2s ease-in-out infinite;
+
+  @keyframes flow { to { stroke-dashoffset: -24; } }
+  @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  @keyframes scan {
+    0% { transform: translateY(0%); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateY(100%); opacity: 0; }
+  }
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv05", "ss01";
+    line-height: 1.55;
+  }
+  ::selection { background: var(--color-secondary); color: var(--color-primary); }
+  /* Visible focus everywhere (WCAG 2.4.7) */
+  :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; border-radius: 4px; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@layer utilities {
+  /* Editorial serif for page introductions and patient-facing statements */
+  .display {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.12;
+  }
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+  }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .pb-safe { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+  .text-balance { text-wrap: balance; }
+  /* Organic brand wash — flow, continuity, progress. Never over data. */
+  .brand-veil {
+    background-image:
+      radial-gradient(60% 80% at 85% 0%, rgb(201 183 217 / 0.28) 0%, transparent 60%),
+      radial-gradient(50% 70% at 0% 10%, rgb(141 174 155 / 0.16) 0%, transparent 55%);
+  }
+  .hairline { border-bottom: 1px solid var(--color-border); }
+}

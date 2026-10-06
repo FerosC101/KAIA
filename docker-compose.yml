@@ -1,0 +1,76 @@
+name: kaia
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kaia
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kaia-dev-password}
+      POSTGRES_DB: kaia
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaia -d kaia"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://kaia:${POSTGRES_PASSWORD:-kaia-dev-password}@db:5432/kaia
+      MEDIA_ROOT: /data/media
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://localhost:8080}
+      CORS_ORIGINS: '["http://localhost:8080"]'
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media:/data/media
+    # Migrations run on every start; the seed only populates an empty database.
+    command: >
+      sh -c "alembic upgrade head &&
+             python -m app.seed &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips='*'"
+    expose:
+      - "8000"
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+  # --- Optional infrastructure (not required by the prototype) --------------------------
+  # The platform's storage and reader-event interfaces are designed so these can replace
+  # the local implementations (services/storage.py, services/events.py). Start with:
+  #   docker compose --profile extras up
+  redis:
+    image: redis:7-alpine
+    profiles: ["extras"]
+    expose:
+      - "6379"
+
+  minio:
+    image: minio/minio:latest
+    profiles: ["extras"]
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: kaia
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-kaia-minio-dev-password}
+    ports:
+      - "9001:9001"
+    volumes:
+      - minio:/data
+
+volumes:
+  pgdata:
+  media:
+  minio:
