@@ -19,3 +19,7 @@ frontend/dist/
 .DS_Store
 .idea/
 .vscode/
+
+# remotion video workspace
+video/node_modules/
+video/out/
