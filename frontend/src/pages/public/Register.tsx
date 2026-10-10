@@ -41,7 +41,7 @@ export default function Register() {
   }
 
   return (
-    <AuthShell title="Create your KAIA account" subtitle="Your screening journey, private and in your control.">
+    <AuthShell title="Create your account" subtitle="Your screening journey, private and in your control.">
       <form onSubmit={onSubmit} className="space-y-4">
         <Field label="Full name" htmlFor="full_name">
           <Input id="full_name" required autoComplete="name" value={form.full_name} onChange={set("full_name")} />
@@ -70,7 +70,7 @@ export default function Register() {
         <Field label="Password" htmlFor="password" hint="At least 10 characters with letters and numbers.">
           <Input id="password" type="password" required minLength={10} autoComplete="new-password" value={form.password} onChange={set("password")} />
         </Field>
-        <label className="flex items-start gap-3 rounded-card border border-border bg-surface p-4 text-sm">
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-primary-soft/60 p-4 text-sm">
           <Checkbox checked={accepted} onChange={(e) => setAccepted(e.target.checked)} />
           <span>
             <span className="flex items-center gap-1.5 font-semibold text-foreground">
@@ -82,8 +82,8 @@ export default function Register() {
             </span>
           </span>
         </label>
-        <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-          {submitting && <Loader2 className="animate-spin" />} Create account
+        <Button type="submit" size="lg" className="mt-2 w-full rounded-full" disabled={submitting}>
+          {submitting && <Loader2 className="animate-spin" />} Create Account
         </Button>
       </form>
       <p className="mt-5 text-center text-sm text-muted-foreground">

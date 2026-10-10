@@ -10,7 +10,7 @@ const STATE_TEXT: Partial<Record<StepState, string>> = {
   upcoming: "Upcoming",
 };
 
-/** Completed = muted green · current = deep plum · future = neutral. */
+/** Completed = green check · current = brand ring · pending = hollow circle. */
 function StepDot({ state }: { state: StepState }) {
   if (state === "done")
     return (
@@ -36,7 +36,7 @@ function StepDot({ state }: { state: StepState }) {
         <Minus className="size-3.5" />
       </span>
     );
-  return <span className={cn("size-7 rounded-full border-2", state === "upcoming" ? "border-lavender" : "border-input")} />;
+  return <span className={cn("block size-7 rounded-full border-2 bg-surface", state === "upcoming" ? "border-lavender" : "border-input")} />;
 }
 
 const HORIZONTAL_MD = {
@@ -57,6 +57,7 @@ export function JourneyTracker({
   layout?: "responsive" | "vertical";
 }) {
   const h = layout === "responsive";
+  if (!h) return <VerticalJourney steps={steps} className={className} />;
   return (
     <ol className={cn("relative grid gap-0", h && HORIZONTAL_MD.ol, className)}>
       {steps.map((step, i) => {
@@ -97,6 +98,44 @@ export function JourneyTracker({
               >
                 {step.state === "done" ? (step.date ? formatDate(step.date, { year: undefined }) : "Done") : (step.note ?? STATE_TEXT[step.state])}
               </span>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** Mobile-style vertical tracker: label on top, date or status underneath. */
+function VerticalJourney({ steps, className }: { steps: JourneyStep[]; className?: string }) {
+  return (
+    <ol className={cn("relative", className)}>
+      {steps.map((step, i) => {
+        const last = i === steps.length - 1;
+        const muted = step.state === "pending" || step.state === "not_needed" || step.state === "upcoming";
+        return (
+          <li key={step.key} className="relative flex gap-4 pb-7 last:pb-0">
+            {!last && (
+              <span
+                aria-hidden
+                className={cn("absolute left-[13px] top-8 h-[calc(100%-2.25rem)] w-0.5 rounded-full", step.state === "done" ? "bg-success/50" : "bg-border")}
+              />
+            )}
+            <span className="relative z-10">
+              <StepDot state={step.state} />
+            </span>
+            <div className="min-w-0 flex-1 pt-0.5">
+              <p className={cn("text-[15px] leading-snug", muted ? "text-muted-foreground" : "font-semibold text-foreground", step.state === "current" && "text-primary")}>
+                {step.label}
+              </p>
+              <p
+                className={cn(
+                  "mt-0.5 text-[13px]",
+                  step.state === "attention" ? "font-medium text-priority" : step.state === "done" ? "text-success" : "text-muted-foreground",
+                )}
+              >
+                {step.state === "done" ? (step.date ? `Completed ${formatDate(step.date, { year: undefined })}` : "Completed") : (step.note ?? STATE_TEXT[step.state])}
+              </p>
             </div>
           </li>
         );

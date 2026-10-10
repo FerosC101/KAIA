@@ -1,4 +1,4 @@
-import { ArrowRight, Loader2, LockKeyhole } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
@@ -43,11 +43,7 @@ export default function Login() {
   }
 
   return (
-    <AuthShell
-      title="Welcome back"
-      subtitle="Sign in to your KAIA account."
-      aside={<p className="text-xs text-white/50">Prototype environment · synthetic data only · not for clinical use</p>}
-    >
+    <AuthShell title="Welcome back" subtitle="Sign in to continue your KAIA journey.">
       <form onSubmit={onSubmit} className="space-y-4">
         <Field label="Email" htmlFor="email">
           <Input id="email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -55,8 +51,8 @@ export default function Login() {
         <Field label="Password" htmlFor="password">
           <Input id="password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
         </Field>
-        <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-          {submitting ? <Loader2 className="animate-spin" /> : <LockKeyhole />} Sign in
+        <Button type="submit" size="lg" className="mt-2 w-full rounded-full" disabled={submitting}>
+          {submitting && <Loader2 className="animate-spin" />} Sign in
         </Button>
       </form>
       <p className="mt-5 text-center text-sm text-muted-foreground">
@@ -66,19 +62,23 @@ export default function Login() {
         </Link>
       </p>
 
-      <div className="mt-10 rounded-card border border-border bg-surface p-4">
-        <p className="px-1 text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Demo accounts</p>
-        <p className="mt-1 px-1 text-xs text-muted-foreground">
+      <div className="mt-12">
+        <div className="flex items-center gap-3">
+          <span className="h-px flex-1 bg-border" />
+          <p className="eyebrow">Demo accounts</p>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
           Synthetic users · password <code className="rounded bg-muted px-1 font-mono">{DEMO_PASSWORD}</code>
         </p>
-        <div className="mt-3 grid gap-1.5">
+        <div className="mt-4 grid gap-1">
           {Object.values(DEMO_ACCOUNTS).map((account) => (
             <button
               key={account.email}
               type="button"
               disabled={submitting}
               onClick={() => signIn(account.email, DEMO_PASSWORD)}
-              className="group flex items-center justify-between gap-3 rounded-btn px-3 py-2.5 text-left transition-colors duration-200 hover:bg-muted"
+              className="group -mx-3 flex items-center justify-between gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors duration-200 hover:bg-primary-soft/70 disabled:opacity-50"
             >
               <span className="min-w-0">
                 <span className="block text-sm font-semibold text-foreground">{account.name}</span>

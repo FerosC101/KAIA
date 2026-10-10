@@ -1,9 +1,9 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/** 48px fields, 12px radius, label above, helper below — never placeholder-as-label. */
+/** 48px fields, 16px radius, thin border, label above, helper below — never placeholder-as-label. */
 const fieldBase =
-  "w-full rounded-field border border-input bg-surface px-3.5 text-sm text-foreground transition-colors duration-200 placeholder:text-subtle focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70";
+  "w-full rounded-field border border-input bg-surface px-4 text-sm text-foreground transition-colors duration-200 placeholder:text-subtle hover:border-primary/30 focus:border-primary/60 focus:outline-none focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-70";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(fieldBase, "h-12", className)} {...props} />;

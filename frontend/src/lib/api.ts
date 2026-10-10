@@ -105,7 +105,16 @@ async function request(path: string, { method = "GET", body, signal }: Options):
   return res;
 }
 
+type MockHandler = (path: string, options: Options) => unknown;
+let mockHandler: MockHandler | null = null;
+
+/** Dev-only (TEMP, for the /ui-test playground): answer api() calls from mock data instead of the network. */
+export function setApiMock(handler: MockHandler | null) {
+  if (import.meta.env.DEV) mockHandler = handler;
+}
+
 export async function api<T>(path: string, options: Options = {}): Promise<T> {
+  if (mockHandler) return (await mockHandler(path, options)) as T;
   const res = await request(path, options);
   if (res.status === 204) return undefined as T;
   return (await res.json()) as T;

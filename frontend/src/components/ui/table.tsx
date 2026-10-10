@@ -11,7 +11,7 @@ export function Table({ className, ...props }: ComponentProps<"table">) {
 }
 
 export function THead({ className, ...props }: ComponentProps<"thead">) {
-  return <thead className={cn("sticky top-0 z-10 bg-surface/95 backdrop-blur-sm [&_tr]:border-b [&_tr]:border-border", className)} {...props} />;
+  return <thead className={cn("sticky top-0 z-10 bg-card/95 backdrop-blur-sm [&_tr]:border-b [&_tr]:border-border", className)} {...props} />;
 }
 
 export function TBody({ className, ...props }: ComponentProps<"tbody">) {
@@ -19,7 +19,7 @@ export function TBody({ className, ...props }: ComponentProps<"tbody">) {
 }
 
 export function TR({ className, ...props }: ComponentProps<"tr">) {
-  return <tr className={cn("border-b border-border/60 transition-colors duration-150 hover:bg-muted/60", className)} {...props} />;
+  return <tr className={cn("border-b border-border/60 transition-colors duration-150 hover:bg-primary-soft/40", className)} {...props} />;
 }
 
 export function TH({ className, ...props }: ComponentProps<"th">) {

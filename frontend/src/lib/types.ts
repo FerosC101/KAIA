@@ -68,6 +68,8 @@ export type Facility = {
   phone: string | null;
   operating_hours: string | null;
   services: string[];
+  /** Not sent by the API yet; shown on the Care Journey when present. */
+  distance_km?: number | null;
 };
 
 export type NextBestAction = {

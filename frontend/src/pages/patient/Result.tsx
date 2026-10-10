@@ -25,19 +25,17 @@ type ResultResponse = {
 /** Plain-language explanations — never a laboratory report. */
 const EXPLAINERS: Record<Outcome, { means: string; next: string }> = {
   routine_screening: {
-    means:
-      "The test did not find a high-risk screening signal in your sample. Screening regularly still matters, because health can change over time.",
-    next: "Nothing more is needed right now. KAIA will remind you when your next routine screening is due.",
+    means: "The test didn't find the warning signs it looks for. It's still worth screening regularly, because health can change over time.",
+    next: "Nothing more is needed right now. KAIA will remind you when your next screening is due.",
   },
   follow_up_recommended: {
     means:
-      "A screening marker was found that deserves a closer look. This result does not mean that you have cervical cancer — a confirmatory screening gives your provider clearer information.",
-    next: "Book a confirmatory screening within the recommended timeframe. KAIA Care helps you find a facility and keeps track of your referral.",
+      "The test found something worth a closer look. It does not mean you have cervical cancer. A second test gives your clinic a clearer picture.",
+    next: "Book your follow-up test soon. KAIA helps you find a clinic and keeps track of your appointment.",
   },
   priority_follow_up: {
-    means:
-      "More than one screening signal was found, so a clinical evaluation should be arranged sooner. This result does not mean that you have cervical cancer.",
-    next: "Please complete your clinical follow-up as soon as practical. KAIA Care can generate a priority referral to a partner facility.",
+    means: "The test found more than one sign that a clinician should check soon. It does not mean you have cervical cancer.",
+    next: "Please visit a clinic as soon as you can. KAIA can send a priority referral to a partner clinic for you.",
   },
 };
 
@@ -67,18 +65,20 @@ export default function Result() {
       </Link>
 
       {!data.ready || !data.result ? (
-        <Card className="flex items-start gap-3 p-6">
-          <Clock3 className="mt-0.5 size-5 text-primary" />
+        <Card className="px-6 py-10 text-center">
+          <span className="mx-auto grid size-14 place-items-center rounded-full bg-primary-soft text-primary">
+            <Clock3 className="size-6" />
+          </span>
           <div>
-            <p className="display text-xl text-foreground">{data.status_label}</p>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+            <h1 className="mt-5 text-[26px] text-foreground">{data.status_label}</h1>
+            <p className="mx-auto mt-2 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
               {data.invalid_message ?? "Your result will appear here after a clinician has reviewed it. We'll send you a notification."}
             </p>
           </div>
         </Card>
       ) : (
         <>
-          <ResultHero outcome={data.result.outcome} message={data.result.message} nextStep={data.result.next_step} />
+          <ResultHero outcome={data.result.outcome} />
 
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="p-5 sm:p-6">
@@ -105,7 +105,7 @@ export default function Result() {
           )}
 
           <Card className="divide-y divide-border px-5">
-            <KeyValue label="Result released" value={formatDate(data.result.released_at)} />
+            <KeyValue label="Result shared" value={formatDate(data.result.released_at)} />
             <KeyValue
               label="Reviewed by"
               value={
@@ -119,7 +119,7 @@ export default function Result() {
 
           <Disclaimer text={data.result.disclaimer} />
 
-          <Button asChild size="lg" className="w-full sm:w-auto">
+          <Button asChild size="lg" className="w-full rounded-full sm:w-auto">
             <Link to={`/app/care/${data.screening_id}`}>
               View care options <ArrowRight />
             </Link>

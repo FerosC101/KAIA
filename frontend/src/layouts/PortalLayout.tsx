@@ -20,7 +20,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { DemoGuide } from "@/components/kaia/DemoGuide";
 import { KaiaLogo } from "@/components/kaia/Logo";
@@ -102,6 +102,16 @@ export function navItemClass(isActive: boolean) {
   );
 }
 
+/** Dark sidebar nav item: quiet by default, lifted maroon tile with a lavender bar when active. */
+function portalNavItemClass(isActive: boolean) {
+  return cn(
+    "relative flex min-h-10 items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors duration-200",
+    isActive
+      ? "bg-sidebar-raised font-semibold text-white before:absolute before:inset-y-2 before:-left-3 before:w-1 before:rounded-r-full before:bg-lavender"
+      : "text-sidebar-muted hover:bg-white/5 hover:text-sidebar-foreground",
+  );
+}
+
 function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -112,19 +122,24 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const initials = user.full_name.replace(/^Dr\.\s*/, "").split(" ").map((p) => p[0]).slice(0, 2).join("");
 
   return (
-    <div className="flex h-full flex-col bg-surface">
+    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 items-center px-5">
         <Link to="/" onClick={onNavigate} aria-label="KAIA home">
-          <KaiaLogo />
+          <KaiaLogo light />
         </Link>
       </div>
 
       {canSwitch && inProgramArea && orgs.length > 0 && (
         <div className="px-4 pb-3">
-          <label htmlFor="org-switch" className="eyebrow mb-1.5 block">
+          <label htmlFor="org-switch" className="eyebrow mb-1.5 block text-sidebar-muted/80">
             Organization
           </label>
-          <Select id="org-switch" value={orgId} onChange={(e) => select(e.target.value)} className="h-10 text-[13px]">
+          <Select
+            id="org-switch"
+            value={orgId}
+            onChange={(e) => select(e.target.value)}
+            className="h-10 rounded-xl border-sidebar-border bg-sidebar-raised text-[13px] text-sidebar-foreground hover:border-lavender/40 focus:border-lavender/60 focus:ring-lavender/15"
+          >
             {orgs.map((o) => (
               <option key={o.id} value={o.id}>
                 {o.name}
@@ -134,17 +149,17 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       )}
 
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-2">
+      <nav className="flex-1 space-y-7 overflow-y-auto px-3 py-3">
         {NAV[user.role].map((section) => (
           <div key={section.title}>
-            <p className="eyebrow px-3 pb-2">{section.title}</p>
+            <p className="eyebrow px-3 pb-2 text-sidebar-muted/70">{section.title}</p>
             <ul className="space-y-0.5">
               {section.items.map(({ to, label, icon: Icon, end }) => (
                 <li key={to}>
-                  <NavLink to={to} end={end} onClick={onNavigate} className={({ isActive }) => navItemClass(isActive)}>
+                  <NavLink to={to} end={end} onClick={onNavigate} className={({ isActive }) => portalNavItemClass(isActive)}>
                     {({ isActive }) => (
                       <>
-                        <Icon className={cn("size-[18px]", isActive ? "text-primary" : "text-subtle")} />
+                        <Icon className={cn("size-[18px]", isActive ? "text-lavender" : "text-sidebar-muted/80")} />
                         {label}
                       </>
                     )}
@@ -156,12 +171,12 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         ))}
       </nav>
 
-      <div className="border-t border-border p-3">
-        <div className="flex items-center gap-3 rounded-btn px-2 py-2">
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-[13px] font-semibold text-primary">{initials}</span>
+      <div className="border-t border-sidebar-border p-3">
+        <div className="flex items-center gap-3 rounded-xl bg-white/[0.04] px-2.5 py-2.5">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-lavender/20 text-[13px] font-semibold text-lavender">{initials}</span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[13px] font-semibold text-foreground">{user.full_name}</p>
-            <p className="truncate text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</p>
+            <p className="truncate text-[13px] font-semibold text-sidebar-foreground">{user.full_name}</p>
+            <p className="truncate text-xs text-sidebar-muted">{ROLE_LABEL[user.role]}</p>
           </div>
         </div>
         <button
@@ -169,17 +184,17 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             await logout();
             navigate("/login");
           }}
-          className="mt-1 flex min-h-11 w-full items-center gap-3 rounded-btn px-3 text-sm text-muted-foreground transition-colors duration-200 hover:bg-muted hover:text-foreground"
+          className="mt-1 flex min-h-10 w-full items-center gap-3 rounded-xl px-3 text-sm text-sidebar-muted transition-colors duration-200 hover:bg-white/5 hover:text-sidebar-foreground"
         >
-          <LogOut className="size-[18px] text-subtle" /> Sign out
+          <LogOut className="size-[18px] text-sidebar-muted/80" /> Sign out
         </button>
       </div>
     </div>
   );
 }
 
-/** Provider / institution / admin shell: light sidebar + workspace, 1440px max width. */
-export function PortalLayout() {
+/** Provider / institution / admin shell: dark split-pane sidebar + cream workspace, 1440px max width. */
+export function PortalLayout({ children }: { children?: ReactNode }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const location = useLocation();
@@ -189,17 +204,18 @@ export function PortalLayout() {
   const context = location.pathname.startsWith("/institution") ? org?.name : (user?.organization?.name ?? "KAIA Platform");
 
   return (
-    <div className="min-h-dvh bg-background lg:pl-64">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border lg:block">
+    // White data cards on the cream workspace: --color-card is re-scoped for the portal only.
+    <div className="min-h-dvh bg-background [--color-card:#ffffff] lg:pl-64">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 lg:block">
         <Sidebar />
       </aside>
 
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <button className="absolute inset-0 bg-charcoal/35" aria-label="Close menu" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-72 border-r border-border shadow-lift">
+          <button className="absolute inset-0 bg-charcoal/45 backdrop-blur-[2px]" aria-label="Close menu" onClick={() => setOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 w-72 shadow-lift">
             <button
-              className="absolute right-3 top-4 rounded-[0.5rem] p-2 text-muted-foreground hover:bg-muted"
+              className="absolute right-3 top-4 z-10 rounded-xl p-2 text-sidebar-muted hover:bg-white/10 hover:text-white"
               onClick={() => setOpen(false)}
               aria-label="Close menu"
             >
@@ -210,10 +226,10 @@ export function PortalLayout() {
         </div>
       )}
 
-      <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-md">
+      <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/90 backdrop-blur-md">
         <div className="flex h-16 items-center gap-3 px-4 lg:px-8">
           <button
-            className="grid size-11 place-items-center rounded-btn text-foreground hover:bg-muted lg:hidden"
+            className="grid size-11 place-items-center rounded-xl text-foreground hover:bg-muted lg:hidden"
             onClick={() => setOpen(true)}
             aria-label="Open menu"
           >
@@ -228,7 +244,7 @@ export function PortalLayout() {
       </header>
 
       <main className="mx-auto max-w-[1440px] px-4 pb-24 pt-7 lg:px-8">
-        <Outlet />
+        {children ?? <Outlet />}
       </main>
       <DemoGuide />
     </div>

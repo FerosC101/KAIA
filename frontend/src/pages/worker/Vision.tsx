@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, CheckCircle2, ChevronRight, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, ArrowRight, BrainCircuit, CheckCircle2, ChevronRight, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { AssayViewer } from "@/components/kaia/AssayViewer";
@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Select, Textarea } from "@/components/ui/form";
 import { api } from "@/lib/api";
-import { GENOTYPE_LABEL, OUTCOME_META } from "@/lib/labels";
+import { GENOTYPE_LABEL, OUTCOME_META, type Tone } from "@/lib/labels";
 import type { Analysis, Outcome, VisionView } from "@/lib/types";
 import { cn, formatDateTime, humanize } from "@/lib/utils";
 
@@ -55,6 +55,99 @@ function IntensityMeters({ analysis }: { analysis: Analysis }) {
   );
 }
 
+const OUTCOME_PANEL: Partial<Record<Tone, string>> = {
+  success: "border-success-ring bg-success-soft text-success",
+  warning: "border-warning-ring bg-warning-soft text-warning",
+  priority: "border-priority-ring bg-priority-soft text-priority",
+};
+
+function MiniStat({ label, value, children }: { label: string; value: string; children?: ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-border/70 bg-background px-3.5 py-3">
+      <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+      <p className="mt-1 text-[15px] font-semibold text-foreground">{value}</p>
+      {children}
+    </div>
+  );
+}
+
+/** KAIA Risk Engine output as a decision-support summary: suggested outcome first, then why. Never a probability of disease. */
+function AnalysisSummary({ data, analysis, pending }: { data: VisionView; analysis: Analysis; pending: boolean }) {
+  const trace = data.decision_trace;
+  const meta = data.outcome ? OUTCOME_META[data.outcome] : null;
+  const confidence = Math.max(0, Math.min(1, analysis.confidence_score));
+  return (
+    <Card className="overflow-hidden bg-surface p-0">
+      <div className="flex items-start gap-3 border-b border-border/70 px-5 py-4">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-burgundy text-white shadow-button">
+          <BrainCircuit className="size-5" />
+        </span>
+        <div className="min-w-0">
+          <h2 className="font-sans text-[15px] font-semibold text-foreground">AI analysis summary</h2>
+          <p className="text-xs text-muted-foreground">KAIA Risk Engine {trace?.engine_version ?? ""} · decision support, not a diagnosis</p>
+        </div>
+      </div>
+
+      <div className="space-y-4 p-5">
+        {trace?.quality_gate === "failed" ? (
+          <p className="rounded-2xl border border-warning-ring bg-warning-soft p-4 text-sm text-warning">{trace.note}</p>
+        ) : (
+          <>
+            {meta && (
+              <div className={cn("rounded-2xl border p-4", OUTCOME_PANEL[meta.tone] ?? "border-border bg-muted text-foreground")}>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-80">{pending ? "Suggested outcome" : "Released outcome"}</p>
+                <p className="mt-1 font-serif text-[22px] leading-tight">{meta.label}</p>
+                <p className="mt-1 text-[13px] leading-relaxed text-foreground/80">{meta.nextStep}</p>
+                {pending && <p className="mt-2 text-xs font-medium text-foreground/70">Awaiting your approval before the patient sees it.</p>}
+              </div>
+            )}
+
+            <div className="grid grid-cols-3 gap-2.5">
+              <MiniStat label="Control" value={analysis.control_validity ? "Valid" : "Invalid"} />
+              <MiniStat label="Confidence" value={humanize(analysis.confidence)}>
+                <div className="mt-2 h-1.5 rounded-full bg-primary-soft" aria-hidden>
+                  <div className="h-full rounded-full bg-primary" style={{ width: `${confidence * 100}%` }} />
+                </div>
+              </MiniStat>
+              <MiniStat label="Rules matched" value={`${trace?.matched_rules?.length ?? 0} of ${trace?.rules_evaluated ?? 0}`} />
+            </div>
+
+            {!!trace?.matched_rules?.length && (
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Why this outcome</p>
+                <ul className="space-y-1.5">
+                  {trace.matched_rules.map((r) => (
+                    <li key={r.id} className="flex items-center justify-between gap-2 rounded-xl bg-muted/70 px-3 py-2 text-sm">
+                      <span className="min-w-0">
+                        <span className="mr-2 font-mono text-xs text-subtle">P{r.priority}</span>
+                        {r.name}
+                      </span>
+                      <OutcomeBadge outcome={r.outcome} />
+                    </li>
+                  ))}
+                </ul>
+                {trace.rule_note && <p className="mt-2 text-xs text-muted-foreground">{trace.rule_note}</p>}
+              </div>
+            )}
+
+            {trace?.model && (
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {trace.model.version}: prioritization score {trace.model.score.toFixed(2)} — {trace.model.escalated ? "escalated to priority" : "no escalation"}.
+              </p>
+            )}
+            {trace?.clinician_override && (
+              <p className="rounded-xl bg-info-soft px-3 py-2 text-xs text-info">
+                Clinician changed outcome from {OUTCOME_META[trace.clinician_override.from].label} to {OUTCOME_META[trace.clinician_override.to].label}.
+              </p>
+            )}
+          </>
+        )}
+        <DecisionSupportLabel />
+      </div>
+    </Card>
+  );
+}
+
 export default function Vision() {
   const { screeningId } = useParams();
   const navigate = useNavigate();
@@ -89,7 +182,6 @@ export default function Vision() {
   if (!assay) return <ErrorBlock error={new Error("No assay captured yet")} />;
   const analyses = assay.analyses;
   const analysis = analyses[selected ?? analyses.length - 1];
-  const trace = data.decision_trace;
   const pending = data.status === "pending_review";
 
   return (
@@ -112,13 +204,13 @@ export default function Vision() {
       />
 
       {/* Pipeline */}
-      <Card className="overflow-x-auto p-4">
+      <Card className="overflow-x-auto bg-surface p-3 sm:p-4">
         <ol className="flex min-w-max items-center gap-2">
           {analysis.pipeline.map((step, i) => (
             <li key={step.key} className="flex items-center gap-2">
-              <div className="rounded-card border border-border bg-background px-4 py-2.5">
+              <div className="rounded-2xl bg-background px-4 py-2.5 ring-1 ring-border/70">
                 <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                  <CheckCircle2 className="size-4 text-primary" /> {step.label}
+                  <CheckCircle2 className="size-4 text-success" /> {step.label}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   {step.summary} · {step.duration_ms} ms
@@ -132,9 +224,7 @@ export default function Vision() {
 
       <div className="grid gap-6 xl:grid-cols-[1.25fr_1fr]">
         <div className="space-y-4">
-          <Card className="p-4 sm:p-5">
-            <AssayViewer analysis={analysis} />
-          </Card>
+          <AssayViewer analysis={analysis} />
           {analyses.length > 1 && (
             <div className="flex flex-wrap gap-2">
               {analyses.map((a, i) => (
@@ -144,7 +234,7 @@ export default function Vision() {
               ))}
             </div>
           )}
-          <Card className="p-5">
+          <Card className="bg-surface p-5">
             <SectionTitle>Stored analysis record</SectionTitle>
             <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
               {[
@@ -165,7 +255,7 @@ export default function Vision() {
         </div>
 
         <div className="space-y-4">
-          <Card className="p-5">
+          <Card className="bg-surface p-5">
             <SectionTitle>Assay signals</SectionTitle>
             <div className="divide-y divide-border">
               <SignalRow label="Control Signal" value={assay.control_valid ? "Valid" : "Invalid"} good={assay.control_valid} />
@@ -180,46 +270,7 @@ export default function Vision() {
             </div>
           </Card>
 
-          <Card className="p-5">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-bold uppercase tracking-[0.12em] text-muted-foreground">KAIA Risk Engine</p>
-            </div>
-            <DecisionSupportLabel className="mb-4" />
-            {trace?.quality_gate === "failed" ? (
-              <p className="rounded-card bg-warning-soft p-3 text-sm text-warning">{trace.note}</p>
-            ) : (
-              <>
-                <div className="flex items-center gap-3">
-                  <OutcomeBadge outcome={data.outcome} pending={pending} className="px-3 py-1 text-sm" />
-                </div>
-                <ul className="mt-4 space-y-1.5">
-                  {trace?.matched_rules?.map((r) => (
-                    <li key={r.id} className="flex items-center justify-between gap-2 rounded-xl bg-muted/70 px-3 py-2 text-sm">
-                      <span>
-                        <span className="mr-2 font-mono text-xs text-subtle">P{r.priority}</span>
-                        {r.name}
-                      </span>
-                      <OutcomeBadge outcome={r.outcome} />
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {trace?.rule_note} · {trace?.rules_evaluated} rules evaluated
-                </p>
-                {trace?.model && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    {trace.model.version}: prioritization score {trace.model.score.toFixed(2)} — {trace.model.escalated ? "escalated to priority" : "no escalation"}.
-                  </p>
-                )}
-                {trace?.clinician_override && (
-                  <p className="mt-2 rounded-xl bg-info-soft px-3 py-2 text-xs text-info">
-                    Clinician changed outcome from {OUTCOME_META[trace.clinician_override.from].label} to {OUTCOME_META[trace.clinician_override.to].label}.
-                  </p>
-                )}
-              </>
-            )}
-            <p className="mt-4 text-[11px] text-subtle">No disease probability is computed or displayed.</p>
-          </Card>
+          <AnalysisSummary data={data} analysis={analysis} pending={pending} />
 
           {pending && (
             <Card className="border-primary/30 p-5 ring-1 ring-primary/20">

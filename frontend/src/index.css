@@ -4,7 +4,7 @@
 
 /* ---------------------------------------------------------------------------
    KAIA design tokens
-   Deep Plum · Muted Burgundy · Soft Lavender · Warm Ivory · Muted Green · Charcoal
+   FemTech premium: Dusty Maroon · Muted Burgundy · Soft Lavender · Cream · Muted Green · Charcoal
    Semantic names only — components never hardcode brand hexes.
 --------------------------------------------------------------------------- */
 @theme {
@@ -13,21 +13,22 @@
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
   /* brand */
-  --color-plum: #4b2848;
+  --color-plum: #5c3042;
   --color-burgundy: #8a3f4a;
   --color-lavender: #c9b7d9;
-  --color-ivory: #f8f4ee;
+  --color-ivory: #fdfbf7;
   --color-green: #8dae9b;
   --color-charcoal: #1f2937;
 
   /* surfaces */
-  --color-background: #f8f4ee;
-  --color-surface: #fffdfa;
-  --color-sunken: #f2ece2;
-  --color-muted: #f3eee6;
-  --color-border: #e8e0d4;
-  --color-input: #d8d0c2;
-  --color-ring: #4b2848;
+  --color-background: #fdfbf7;   /* soft cream page */
+  --color-card: #faf6ef;         /* cream card, a shade warmer than the page */
+  --color-surface: #ffffff;      /* fields and raised controls */
+  --color-sunken: #f4eee5;
+  --color-muted: #f5f0e8;
+  --color-border: #ece4d8;
+  --color-input: #e0d7ca;        /* thin, subtle field border */
+  --color-ring: #5c3042;
 
   /* text */
   --color-foreground: #1f2937;
@@ -36,16 +37,23 @@
   --color-muted-foreground: #6b7280;
   --color-subtle: #9aa2ae;
 
-  /* primary (deep plum) */
-  --color-primary: #4b2848;
-  --color-primary-hover: #3a1d37;
+  /* primary (dusty maroon) */
+  --color-primary: #5c3042;
+  --color-primary-hover: #4a2535;
   --color-primary-foreground: #ffffff;
-  --color-primary-soft: #f1eaf0;
-  --color-primary-ring: #e2d4e0;
+  --color-primary-soft: #f6edf0;
+  --color-primary-ring: #e9d7de;
+
+  /* portal sidebar — deep maroon-black, the clinician workspace frame */
+  --color-sidebar: #2a1620;
+  --color-sidebar-raised: #3a2230;
+  --color-sidebar-border: #43293a;
+  --color-sidebar-foreground: #f6eef2;
+  --color-sidebar-muted: #b7a2ad;
 
   /* secondary (soft lavender) */
   --color-secondary: #efe9f5;
-  --color-secondary-foreground: #4b2848;
+  --color-secondary-foreground: #5c3042;
   --color-lavender-soft: #f4effa;
 
   /* status — tinted backgrounds + text-safe foregrounds */
@@ -63,14 +71,15 @@
   --color-info-ring: #ded5ea;
 
   /* geometry */
-  --radius-card: 1rem;       /* 16px cards */
-  --radius-btn: 0.625rem;    /* 10px buttons */
-  --radius-field: 0.75rem;   /* 12px inputs */
+  --radius-card: 1.5rem;    /* 24px cards (rounded-3xl) */
+  --radius-btn: 1rem;       /* 16px buttons (rounded-2xl) */
+  --radius-field: 1rem;     /* 16px inputs, softly rounded */
 
   /* elevation — restrained */
-  --shadow-card: 0 1px 2px rgb(31 41 55 / 0.04);
-  --shadow-soft: 0 1px 2px rgb(31 41 55 / 0.04), 0 8px 24px -18px rgb(31 41 55 / 0.18);
-  --shadow-lift: 0 2px 6px rgb(31 41 55 / 0.06), 0 18px 40px -24px rgb(75 40 72 / 0.28);
+  --shadow-card: 0 1px 2px rgb(92 48 66 / 0.04), 0 10px 30px -20px rgb(92 48 66 / 0.18);
+  --shadow-soft: 0 1px 3px rgb(92 48 66 / 0.05), 0 14px 36px -22px rgb(92 48 66 / 0.24);
+  --shadow-lift: 0 2px 8px rgb(92 48 66 / 0.07), 0 24px 48px -26px rgb(92 48 66 / 0.34);
+  --shadow-button: 0 1px 2px rgb(92 48 66 / 0.12), 0 8px 20px -10px rgb(92 48 66 / 0.45);
 
   --animate-flow: flow 2.4s linear infinite;
   --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
@@ -97,6 +106,8 @@
     font-feature-settings: "cv05", "ss01";
     line-height: 1.55;
   }
+  /* Serif page headings convey trust; UI and body copy stay sans */
+  h1, h2 { font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.015em; }
   ::selection { background: var(--color-secondary); color: var(--color-primary); }
   /* Visible focus everywhere (WCAG 2.4.7) */
   :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; border-radius: 4px; }

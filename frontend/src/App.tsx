@@ -7,14 +7,19 @@ import { ROLE_HOME, useAuth } from "@/lib/auth";
 import type { Role } from "@/lib/types";
 
 const Landing = lazy(() => import("@/pages/public/Landing"));
+const About = lazy(() => import("@/pages/public/About"));
 const Login = lazy(() => import("@/pages/public/Login"));
 const Register = lazy(() => import("@/pages/public/Register"));
 const NotFound = lazy(() => import("@/pages/public/NotFound"));
+// TEMP: dev-only UI playground with mock data; never bundled into production builds.
+const UiPlayground = import.meta.env.DEV ? lazy(() => import("@/pages/dev/UiPlayground")) : null;
 
 const PatientHome = lazy(() => import("@/pages/patient/Home"));
 const RegisterKit = lazy(() => import("@/pages/patient/RegisterKit"));
 const Result = lazy(() => import("@/pages/patient/Result"));
 const Care = lazy(() => import("@/pages/patient/Care"));
+const CareJourney = lazy(() => import("@/pages/patient/CareJourney"));
+const UsageGuide = lazy(() => import("@/pages/patient/UsageGuide"));
 const PatientReferral = lazy(() => import("@/pages/patient/ReferralView"));
 const Passport = lazy(() => import("@/pages/patient/Passport"));
 const Privacy = lazy(() => import("@/pages/patient/Privacy"));
@@ -68,6 +73,8 @@ export default function App() {
     <Suspense fallback={<FullPageSpinner />}>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/about" element={<About />} />
+        {UiPlayground && <Route path="/ui-test" element={<UiPlayground />} />}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
@@ -77,6 +84,9 @@ export default function App() {
           <Route path="results/:screeningId" element={<Result />} />
           <Route path="care" element={<Care />} />
           <Route path="care/:screeningId" element={<Care />} />
+          <Route path="care-journey" element={<CareJourney />} />
+          <Route path="care-journey/:screeningId" element={<CareJourney />} />
+          <Route path="usage-guide" element={<UsageGuide />} />
           <Route path="referrals/:referralId" element={<PatientReferral />} />
           <Route path="passport" element={<Passport />} />
           <Route path="privacy" element={<Privacy />} />

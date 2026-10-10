@@ -1,9 +1,9 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
-/** Default KAIA surface: warm white, 1px hairline, 16px radius, shadow only when lifted. */
+/** Default KAIA surface: cream, 1px hairline, 24px radius, soft plum-tinted shadow. */
 export function Card({ className, ...props }: ComponentProps<"div">) {
-  return <div className={cn("rounded-card border border-border bg-surface shadow-card", className)} {...props} />;
+  return <div className={cn("rounded-card border border-border/70 bg-card shadow-card", className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: ComponentProps<"div">) {
@@ -11,7 +11,7 @@ export function CardHeader({ className, ...props }: ComponentProps<"div">) {
 }
 
 export function CardTitle({ className, ...props }: ComponentProps<"h3">) {
-  return <h3 className={cn("text-base font-semibold tracking-tight text-foreground", className)} {...props} />;
+  return <h3 className={cn("font-serif text-lg font-medium tracking-tight text-foreground", className)} {...props} />;
 }
 
 export function CardDescription({ className, ...props }: ComponentProps<"p">) {

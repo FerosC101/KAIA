@@ -29,6 +29,25 @@ export const OUTCOME_META: Record<
   },
 };
 
+/** Patient-facing wording: plain language, no lab terms, never a diagnosis. Clinician views keep OUTCOME_META. */
+export const PATIENT_OUTCOME: Record<Outcome, { title: string; summary: string; nextStep: string }> = {
+  routine_screening: {
+    title: "No signs of concern found",
+    summary: "Your sample did not show anything that needs a follow-up visit right now.",
+    nextStep: "Nothing else to do for now. We'll remind you when it's time for your next screening.",
+  },
+  follow_up_recommended: {
+    title: "Follow-up recommended",
+    summary: "We found something that should be checked again with a second test. This does not mean you have cancer.",
+    nextStep: "Book a follow-up test at a nearby clinic. KAIA can help you choose one and keep track of it.",
+  },
+  priority_follow_up: {
+    title: "Please see a clinician soon",
+    summary: "Your sample showed signs that a clinician should look at soon. This does not mean you have cancer.",
+    nextStep: "Visit a clinic as soon as you can. KAIA can send a priority referral for you.",
+  },
+};
+
 export const SCREENING_STATUS_TONE: Record<ScreeningStatus, Tone> = {
   kit_registered: "neutral",
   sample_collected: "lavender",

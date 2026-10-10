@@ -63,13 +63,19 @@ export function StatCard({
   className?: string;
 }) {
   return (
-    <Card className={cn("p-4 sm:p-5", highlight && "border-primary/30 ring-1 ring-primary/15", className)}>
+    <Card
+      className={cn(
+        "bg-surface p-4 transition-shadow duration-200 hover:shadow-soft sm:p-5",
+        highlight && "border-primary/30 ring-1 ring-primary/15",
+        className,
+      )}
+    >
       <div className="flex items-start justify-between gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{label}</span>
-        {icon && <span className={cn("grid size-7 shrink-0 place-items-center rounded-[0.5rem] [&_svg]:size-3.5", STAT_TONES[tone])}>{icon}</span>}
+        <span className="text-[12px] font-medium leading-snug text-muted-foreground">{label}</span>
+        {icon && <span className={cn("grid size-9 shrink-0 place-items-center rounded-xl [&_svg]:size-4", STAT_TONES[tone])}>{icon}</span>}
       </div>
-      <div className="mt-2.5 text-[26px] font-semibold leading-none tracking-tight text-foreground">{value}</div>
-      {sub && <div className="mt-2 text-xs leading-relaxed text-muted-foreground">{sub}</div>}
+      <div className="tabular mt-3 text-[30px] font-semibold leading-none tracking-tight text-foreground">{value}</div>
+      {sub && <div className="mt-2.5 text-xs leading-relaxed text-muted-foreground">{sub}</div>}
     </Card>
   );
 }
@@ -147,7 +153,7 @@ export function EmptyState({
 export function SectionTitle({ children, action, className }: { children: ReactNode; action?: ReactNode; className?: string }) {
   return (
     <div className={cn("mb-3 flex items-center justify-between gap-3", className)}>
-      <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h2>
+      <h2 className="font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{children}</h2>
       {action}
     </div>
   );
